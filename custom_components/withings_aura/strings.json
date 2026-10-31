@@ -1,0 +1,159 @@
+{
+  "config": {
+    "flow_title": "Withings Aura",
+    "step": {
+      "user": {
+        "title": "Set up Withings Aura",
+        "description": "Enter the LAN address of the Aura's WPP bridge. The default port is 7685.",
+        "data": {
+          "host": "Host",
+          "port": "Port"
+        }
+      },
+      "zeroconf_confirm": {
+        "title": "Withings Aura found",
+        "description": "Add the Aura at {host} ({mac})?"
+      },
+      "reconfigure": {
+        "title": "Reconfigure Withings Aura",
+        "description": "Change the bridge address.",
+        "data": {
+          "host": "Host",
+          "port": "Port"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Cannot connect to the Aura bridge.",
+      "unsupported_auth": "This Aura requires the Withings association secret; local control is unavailable.",
+      "wrong_device": "The bridge answered with a different Aura MAC address.",
+      "unknown": "Unexpected error."
+    },
+    "abort": {
+      "already_configured": "This Aura is already configured.",
+      "cannot_connect": "Cannot connect to the Aura bridge.",
+      "unsupported_auth": "This Aura requires the Withings association secret; local control is unavailable."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Withings Aura options",
+        "data": {
+          "poll_interval": "Status poll interval (seconds)",
+          "slow_poll_interval": "Alarm/program poll interval (seconds)"
+        }
+      }
+    }
+  },
+  "entity": {
+    "light": {
+      "lamp": {
+        "name": "Lamp"
+      }
+    },
+    "switch": {
+      "clock_display": {
+        "name": "Clock display"
+      },
+      "private_mode": {
+        "name": "Private mode"
+      },
+      "alarm_enabled": {
+        "name": "Alarms"
+      }
+    },
+    "number": {
+      "clock_brightness": {
+        "name": "Clock brightness"
+      }
+    },
+    "select": {
+      "program": {
+        "name": "Program",
+        "state": {
+          "Mood": "Mood",
+          "Nap": "Nap",
+          "Sleep": "Sleep",
+          "Wake-up": "Wake-up",
+          "Retail": "Retail",
+          "Media": "Media"
+        }
+      }
+    },
+    "button": {
+      "start_program": {
+        "name": "Start program"
+      },
+      "stop_program": {
+        "name": "Stop program"
+      },
+      "snooze": {
+        "name": "Snooze"
+      },
+      "sync_time": {
+        "name": "Sync time"
+      },
+      "trigger_alarm": {
+        "name": "Trigger alarm"
+      }
+    },
+    "sensor": {
+      "status": {
+        "name": "Status"
+      },
+      "firmware": {
+        "name": "Firmware"
+      },
+      "alarm_count": {
+        "name": "Alarm slots"
+      },
+      "alarms": {
+        "name": "Alarms"
+      }
+    },
+    "binary_sensor": {
+      "playing": {
+        "name": "Playing"
+      }
+    }
+  },
+  "services": {
+    "start_program": {
+      "name": "Start program",
+      "description": "Start a mood, nap, sleep, wake-up, retail or media program."
+    },
+    "stop_program": {
+      "name": "Stop program",
+      "description": "Stop the current program."
+    },
+    "snooze": {
+      "name": "Snooze",
+      "description": "Snooze the current wake-up."
+    },
+    "set_alarm": {
+      "name": "Set alarm",
+      "description": "Create or replace an alarm slot."
+    },
+    "set_alarm_enabled": {
+      "name": "Set alarms enabled",
+      "description": "Enable or disable all alarms."
+    },
+    "set_clock_display": {
+      "name": "Set clock display",
+      "description": "Turn the clock display on/off and set its brightness."
+    },
+    "sync_time": {
+      "name": "Sync time",
+      "description": "Push the Home Assistant time and 12/24-hour mode to the Aura."
+    },
+    "set_program_settings": {
+      "name": "Set program settings",
+      "description": "Set volume/brightness/id for a program type."
+    },
+    "trigger_alarm": {
+      "name": "Trigger alarm",
+      "description": "Start a wake-up alarm immediately."
+    }
+  }
+}

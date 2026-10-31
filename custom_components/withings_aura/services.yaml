@@ -1,0 +1,246 @@
+start_program:
+  name: Start program
+  description: Start a mood, nap, sleep, wake-up, retail or media program.
+  fields:
+    entry_id:
+      name: Config entry
+      description: Required only when more than one Aura is configured.
+      selector:
+        text:
+    program_type:
+      name: Program type
+      required: true
+      selector:
+        select:
+          options:
+            - Mood
+            - Nap
+            - Sleep
+            - Wake-up
+            - Retail
+            - Media
+    program_id:
+      name: Program id
+      selector:
+        number:
+          min: 0
+          max: 255
+    volume:
+      name: Volume
+      selector:
+        number:
+          min: 0
+          max: 100
+    brightness:
+      name: Brightness
+      selector:
+        number:
+          min: 0
+          max: 100
+    web_radio:
+      name: Web radio URL
+      selector:
+        text:
+
+stop_program:
+  name: Stop program
+  description: Stop the current program.
+  fields:
+    entry_id:
+      name: Config entry
+      selector:
+        text:
+
+snooze:
+  name: Snooze
+  description: Snooze the current wake-up.
+  fields:
+    entry_id:
+      name: Config entry
+      selector:
+        text:
+
+trigger_alarm:
+  name: Trigger alarm
+  description: Start a wake-up alarm immediately.
+  fields:
+    entry_id:
+      name: Config entry
+      selector:
+        text:
+    program_id:
+      name: Program id
+      selector:
+        number:
+          min: 0
+          max: 255
+    volume:
+      name: Volume
+      selector:
+        number:
+          min: 0
+          max: 100
+    brightness:
+      name: Brightness
+      selector:
+        number:
+          min: 0
+          max: 100
+
+set_alarm:
+  name: Set alarm
+  description: Create or replace an alarm slot.
+  fields:
+    entry_id:
+      name: Config entry
+      selector:
+        text:
+    slot:
+      name: Alarm slot
+      required: true
+      selector:
+        number:
+          min: 1
+          max: 10
+    time:
+      name: Time
+      description: "HH:MM (24-hour)"
+      required: true
+      selector:
+        text:
+    days:
+      name: Days
+      selector:
+        select:
+          multiple: true
+          options:
+            - mon
+            - tue
+            - wed
+            - thu
+            - fri
+            - sat
+            - sun
+    program_id:
+      name: Program id
+      selector:
+        number:
+          min: 0
+          max: 255
+    enabled:
+      name: Enabled
+      selector:
+        boolean:
+    one_shot_date:
+      name: One-shot date
+      description: "YYYY-MM-DD; leave empty for a recurring alarm."
+      selector:
+        text:
+    volume:
+      name: Volume
+      selector:
+        number:
+          min: 0
+          max: 100
+    brightness:
+      name: Brightness
+      selector:
+        number:
+          min: 0
+          max: 100
+    setting_id:
+      name: Setting id
+      selector:
+        number:
+          min: 0
+          max: 255
+    web_radio:
+      name: Web radio URL
+      selector:
+        text:
+
+set_alarm_enabled:
+  name: Set alarms enabled
+  description: Enable or disable all alarms.
+  fields:
+    entry_id:
+      name: Config entry
+      selector:
+        text:
+    enabled:
+      name: Enabled
+      required: true
+      selector:
+        boolean:
+
+set_clock_display:
+  name: Set clock display
+  description: Turn the clock display on/off and set its brightness.
+  fields:
+    entry_id:
+      name: Config entry
+      selector:
+        text:
+    display:
+      name: Display on
+      required: true
+      selector:
+        boolean:
+    brightness:
+      name: Brightness
+      selector:
+        number:
+          min: 0
+          max: 100
+
+sync_time:
+  name: Sync time
+  description: Push the Home Assistant time and 12/24-hour mode to the Aura.
+  fields:
+    entry_id:
+      name: Config entry
+      selector:
+        text:
+    twelve_hour:
+      name: 12-hour clock
+      selector:
+        boolean:
+
+set_program_settings:
+  name: Set program settings
+  description: Set volume/brightness/id for a program type.
+  fields:
+    entry_id:
+      name: Config entry
+      selector:
+        text:
+    program_type:
+      name: Program type
+      required: true
+      selector:
+        select:
+          options:
+            - Mood
+            - Nap
+            - Sleep
+            - Wake-up
+            - Retail
+            - Media
+    volume:
+      name: Volume
+      selector:
+        number:
+          min: 0
+          max: 100
+    brightness:
+      name: Brightness
+      selector:
+        number:
+          min: 0
+          max: 100
+    program_id:
+      name: Program id
+      selector:
+        number:
+          min: 0
+          max: 255
