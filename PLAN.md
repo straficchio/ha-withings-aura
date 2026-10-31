@@ -1,6 +1,6 @@
 # Plan: Home Assistant integration for Withings Aura (WSD01)
 
-Status: **implemented v0.1.0** (M0–M4); M5 is optional.
+Status: **implemented v0.1.2** (M0–M4); M5 is optional.
 Target: a self-contained, HACS-shareable custom integration in this folder.
 Protocol reference: the WPP notes in the parent reverse-engineering workspace
 (not part of this repository). The integration is self-contained.
