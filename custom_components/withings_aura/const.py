@@ -104,8 +104,8 @@ SUBSTATUS_NAMES = {0: "idle", 1: "playing", 2: "paused", 3: "invalid"}
 # Program types
 PROGRAM_TYPES = {1: "mood", 2: "nap", 3: "sleep", 4: "wake_up", 5: "retail", 6: "media"}
 PROGRAM_TYPE_NAMES = {1: "Mood", 2: "Nap", 3: "Sleep", 4: "Wake-up", 5: "Retail", 6: "Media"}
-PROGRAM_NAME_TO_TYPE = {v: k for k, v in PROGRAM_TYPE_NAMES.items()}
-PROGRAM_OPTIONS = list(PROGRAM_TYPE_NAMES.values())
+PROGRAM_NAME_TO_TYPE = {v: k for k, v in PROGRAM_TYPES.items()}
+PROGRAM_OPTIONS = list(PROGRAM_TYPES.values())
 DEFAULT_PROGRAM_IDS = {1: 0, 2: 1, 3: 1, 4: 1, 5: 0, 6: 0}
 
 # Program setting keys

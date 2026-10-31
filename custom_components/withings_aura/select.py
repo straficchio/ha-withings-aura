@@ -5,16 +5,16 @@ from __future__ import annotations
 from homeassistant.components.select import SelectEntity
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import PROGRAM_OPTIONS, PROGRAM_TYPE_NAMES
+from .const import PROGRAM_OPTIONS, PROGRAM_TYPES
 from .entity import AuraEntity
 from .runtime import AuraConfigEntry
 
 STATUS_TO_PROGRAM = {
-    1: PROGRAM_TYPE_NAMES[3],  # sleep
-    2: PROGRAM_TYPE_NAMES[4],  # wake-up
-    3: PROGRAM_TYPE_NAMES[2],  # nap
-    4: PROGRAM_TYPE_NAMES[1],  # mood
-    6: PROGRAM_TYPE_NAMES[6],  # media
+    1: PROGRAM_TYPES[3],  # sleep
+    2: PROGRAM_TYPES[4],  # wake-up
+    3: PROGRAM_TYPES[2],  # nap
+    4: PROGRAM_TYPES[1],  # mood
+    6: PROGRAM_TYPES[6],  # media
 }
 
 

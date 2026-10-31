@@ -13,12 +13,12 @@ start_program:
       selector:
         select:
           options:
-            - Mood
-            - Nap
-            - Sleep
-            - Wake-up
-            - Retail
-            - Media
+            - mood
+            - nap
+            - sleep
+            - wake_up
+            - retail
+            - media
     program_id:
       name: Program id
       selector:
@@ -220,12 +220,12 @@ set_program_settings:
       selector:
         select:
           options:
-            - Mood
-            - Nap
-            - Sleep
-            - Wake-up
-            - Retail
-            - Media
+            - mood
+            - nap
+            - sleep
+            - wake_up
+            - retail
+            - media
     volume:
       name: Volume
       selector:

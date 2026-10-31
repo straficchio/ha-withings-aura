@@ -56,7 +56,12 @@ class AuraBridge:
 
     async def async_close(self, *, disconnect: bool = True) -> None:
         """Close the connection, optionally sending DISCONNECT first."""
-        if disconnect and self.connected:
+        if (
+            disconnect
+            and self.connected
+            and self._reader_task is not None
+            and not self._reader_task.done()
+        ):
             try:
                 await self.async_request(CMD_DISCONNECT, timeout=1.0)
             except Exception:  # noqa: BLE001 - best effort
@@ -114,6 +119,9 @@ class AuraBridge:
             if not future.done():
                 future.set_exception(AuraConnectionError(str(err)))
         self._pending.clear()
+        if self._writer is not None:
+            self._writer.close()
+            self._writer = None
 
     async def async_request(
         self,

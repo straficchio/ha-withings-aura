@@ -192,3 +192,27 @@ async def test_trigger_alarm_service(hass, mock_entry, fake_bridge) -> None:
     body = fake_bridge.last_request(CMD_START_PROGRAM)
     assert body is not None
     assert decode_tlvs(body)[0] == (2312, b"\x04\x0f")
+
+
+async def test_program_select_and_start(hass, mock_entry, fake_bridge) -> None:
+    await setup_aura(hass, mock_entry)
+    select_id = entity_id(hass, "select", "program")
+    assert hass.states.get(select_id).state == "mood"
+
+    await hass.services.async_call(
+        "select",
+        "select_option",
+        {ATTR_ENTITY_ID: select_id, "option": "sleep"},
+        blocking=True,
+    )
+    assert hass.states.get(select_id).state == "sleep"
+
+    await hass.services.async_call(
+        "button",
+        "press",
+        {ATTR_ENTITY_ID: entity_id(hass, "button", "start_program")},
+        blocking=True,
+    )
+    body = fake_bridge.last_request(CMD_START_PROGRAM)
+    assert body is not None
+    assert decode_tlvs(body)[0] == (2312, b"\x03\x01")

@@ -94,13 +94,13 @@ configured.
 ```yaml
 service: withings_aura.start_program
 data:
-  program_type: Nap
+  program_type: nap
   program_id: 1
   volume: 50
   brightness: 97
 ```
 
-`program_type` is one of `Mood`, `Nap`, `Sleep`, `Wake-up`, `Retail`, `Media`.
+`program_type` is one of `mood`, `nap`, `sleep`, `wake_up`, `retail`, `media`.
 
 ### `withings_aura.set_alarm`
 
@@ -171,7 +171,7 @@ data:
 ```yaml
 service: withings_aura.set_program_settings
 data:
-  program_type: Sleep
+  program_type: sleep
   volume: 29
   brightness: 50
   program_id: 1

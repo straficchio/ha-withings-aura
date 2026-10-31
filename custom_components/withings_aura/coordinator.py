@@ -19,7 +19,6 @@ from .const import (
     DEFAULT_POLL_INTERVAL,
     DEFAULT_SLOW_POLL_INTERVAL,
     DOMAIN,
-    PROGRAM_TYPE_NAMES,
     PROGRAM_TYPES,
 )
 from .device import AuraDevice
@@ -60,7 +59,7 @@ class AuraCoordinator(DataUpdateCoordinator[AuraSnapshot]):
         self._programs: dict[int, dict[str, str]] = {}
         self._program_infos: dict[int, Any] = {}
         self._last_slow = 0.0
-        self.selected_program: str = PROGRAM_TYPE_NAMES[1]
+        self.selected_program: str = PROGRAM_TYPES[1]
 
     async def _async_update_data(self) -> AuraSnapshot:
         try:

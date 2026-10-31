@@ -7,6 +7,7 @@ import logging
 from homeassistant.config_entries import ConfigEntryError, ConfigEntryNotReady
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.typing import ConfigType
 
 from .const import (
@@ -16,6 +17,7 @@ from .const import (
     CONF_SLOW_POLL_INTERVAL,
     DEFAULT_POLL_INTERVAL,
     DEFAULT_SLOW_POLL_INTERVAL,
+    DOMAIN,
 )
 from .coordinator import AuraCoordinator
 from .device import AuraDevice
@@ -27,6 +29,8 @@ from .transport import AuraBridge
 from .util import normalize_mac
 
 _LOGGER = logging.getLogger(__name__)
+
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 PLATFORMS = [
     Platform.LIGHT,

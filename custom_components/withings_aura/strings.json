@@ -72,12 +72,12 @@
       "program": {
         "name": "Program",
         "state": {
-          "Mood": "Mood",
-          "Nap": "Nap",
-          "Sleep": "Sleep",
-          "Wake-up": "Wake-up",
-          "Retail": "Retail",
-          "Media": "Media"
+          "mood": "Mood",
+          "nap": "Nap",
+          "sleep": "Sleep",
+          "wake_up": "Wake-up",
+          "retail": "Retail",
+          "media": "Media"
         }
       }
     },
