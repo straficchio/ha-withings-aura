@@ -50,9 +50,10 @@ class AuraLampLight(AuraEntity, LightEntity):
 
     @property
     def brightness(self) -> int | None:
+        """Return HA brightness (0-255), not the Aura percentage."""
         if not self.coordinator.data:
             return None
-        return self.coordinator.data.lamp.brightness
+        return round(self.coordinator.data.lamp.brightness * 255 / 100)
 
     @property
     def rgb_color(self) -> tuple[int, int, int] | None:
@@ -68,8 +69,10 @@ class AuraLampLight(AuraEntity, LightEntity):
             rgb = current.rgb if current and current.is_on else DEFAULT_RGB
         brightness = kwargs.get(ATTR_BRIGHTNESS)
         if brightness is None:
-            brightness = current.brightness if current and current.is_on else 100
-        red, green, blue = lamp_channels(tuple(rgb), brightness)
+            brightness_percent = current.brightness if current and current.is_on else 100
+        else:
+            brightness_percent = round(brightness * 100 / 255)
+        red, green, blue = lamp_channels(tuple(rgb), brightness_percent)
         self._queue(red, green, blue, True)
 
     async def async_turn_off(self, **kwargs) -> None:

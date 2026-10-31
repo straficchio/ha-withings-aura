@@ -8,7 +8,8 @@ Tested against firmware **1301** (hardware 12).
 
 ## Features
 
-- **Lamp** — colour, brightness, on/off.
+- **Lamp** — colour, brightness, on/off (HA brightness 0–255, converted to the Aura’s 0–100%).
+- **Program volume** — 0–100 volume for the program selected in the Program select.
 - **Clock display** — on/off switch and 0–100 brightness number.
 - **Private mode** — switch.
 - **Alarms** — alarm sensor with attributes, global alarm switch, and
@@ -70,6 +71,7 @@ creating a half-working entry.
 | Lamp | `light` | RGB colour, brightness, on/off |
 | Clock display | `switch` | Clock display on/off |
 | Clock brightness | `number` | 0–100 |
+| Program volume | `number` | 0–100 for the selected program |
 | Private mode | `switch` | Aura private mode |
 | Alarms | `switch` | Global alarm enable |
 | Alarms | `sensor` | Configured alarms and attributes |
@@ -85,6 +87,10 @@ creating a half-working entry.
 | Sync time | `button` | Pushes HA time/clock mode |
 
 ## Services
+
+Volume is stored per program. The **Program volume** number applies to the
+program currently selected in the **Program** select. Alarm volume is set per
+alarm with the `set_alarm` service.
 
 All services accept an optional `entry_id`; omit it when only one Aura is
 configured.

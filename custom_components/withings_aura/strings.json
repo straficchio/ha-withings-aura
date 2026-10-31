@@ -66,6 +66,9 @@
     "number": {
       "clock_brightness": {
         "name": "Clock brightness"
+      },
+      "program_volume": {
+        "name": "Program volume"
       }
     },
     "select": {

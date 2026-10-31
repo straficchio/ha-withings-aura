@@ -7,6 +7,7 @@ import contextlib
 from collections.abc import Awaitable, Callable
 
 from custom_components.withings_aura.protocol import (
+    decode_tlvs,
     decode_wpp,
     extract_frag_frames,
     frag,
@@ -41,6 +42,7 @@ ALARMS_BODY = bytes.fromhex(
     "09160003030131"
 )
 PROGRAM_SETTINGS_BODY = bytes.fromhex("0916000401023530091600040202353009160003030131")
+PROGRAM_SETTINGS_SLEEP = bytes.fromhex("0916000401023239091600040202353009160003030131")
 PROGRAM_INFO_BODY = bytes.fromhex("090900050201010100")
 
 DEFAULT_RESPONSES = {
@@ -64,6 +66,7 @@ class FakeBridge:
         if responses:
             self.responses.update(responses)
         self.response_commands: dict[int, int] = {}
+        self.program_settings: dict[int, bytes] = {}
         self.requests: list[tuple[int, bytes]] = []
         self.server: asyncio.AbstractServer | None = None
         self.host = "127.0.0.1"
@@ -114,7 +117,21 @@ class FakeBridge:
                         self.requests.append((message.command, message.body))
                         if self.on_request is not None:
                             await self.on_request(message.command, message.body)
-                        response = self.responses.get(message.command, b"")
+                        if message.command == 2317:
+                            # Reflect the write so a coordinator refresh sees it.
+                            values = dict(decode_tlvs(message.body))
+                            if 2324 in values and 2316 in values:
+                                self.responses[2318] = tlv(2324, values[2324]) + tlv(
+                                    2316, values[2316]
+                                )
+                        if message.command == 2310:
+                            values = dict(decode_tlvs(message.body))
+                            program_type = values.get(2327, b"\x00")[0]
+                            response = self.program_settings.get(
+                                program_type, PROGRAM_SETTINGS_BODY
+                            )
+                        else:
+                            response = self.responses.get(message.command, b"")
                         response_command = self.response_commands.get(
                             message.command, message.command
                         )

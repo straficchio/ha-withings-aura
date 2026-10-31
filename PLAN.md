@@ -1,6 +1,6 @@
 # Plan: Home Assistant integration for Withings Aura (WSD01)
 
-Status: **implemented v0.1.2** (M0–M4); M5 is optional.
+Status: **implemented v0.1.3** (M0–M4); M5 is optional.
 Target: a self-contained, HACS-shareable custom integration in this folder.
 Protocol reference: the WPP notes in the parent reverse-engineering workspace
 (not part of this repository). The integration is self-contained.
@@ -150,6 +150,7 @@ One `AuraBridge` per config entry:
 | `light` | Lamp | 2318 read / 2317 write | RGB + brightness + off |
 | `switch` | Clock display | 2320 read / 2319+2317 write | |
 | `number` | Clock brightness | 2320 read / 2319+2317 write | 0–100 |
+| `number` | Program volume | 2310 read / 2309 write | selected program, 0–100 |
 | `switch` | Private mode | 2320 read / 2319+2059 write | inverted |
 | `switch` | Alarm enabled | 2330 / 2331 | global flag |
 | `select` | Program | 2310/2313 | mood, nap, sleep, wake-up, retail, media |
@@ -310,7 +311,7 @@ status/firmware update.
 
 ### M2 — Settings and program controls (1–2 days)
 
-- Clock display switch, brightness number, private mode switch.
+- Clock display switch, brightness number, program volume number, private mode switch.
 - Program select, start/stop/snooze buttons.
 - Alarm enabled switch, alarm sensor.
 

@@ -15,6 +15,7 @@ from custom_components.withings_aura.const import (
     CMD_SET_ALARM,
     CMD_SET_ALARM_ENABLED,
     CMD_SET_LAMP,
+    CMD_SET_PROGRAM_SETTINGS,
     CMD_SET_SETTINGS,
     CMD_SNOOZE,
     CMD_START_PROGRAM,
@@ -22,6 +23,8 @@ from custom_components.withings_aura.const import (
     DOMAIN,
 )
 from custom_components.withings_aura.protocol import decode_tlvs
+
+from .fake_bridge import PROGRAM_SETTINGS_SLEEP
 
 ENTITY_ID = "00:11:22:33:44:55"
 
@@ -64,7 +67,7 @@ async def test_light_turn_on_off(hass, mock_entry, fake_bridge) -> None:
     await hass.services.async_call(
         "light",
         "turn_on",
-        {ATTR_ENTITY_ID: light_id, ATTR_RGB_COLOR: [255, 0, 0], ATTR_BRIGHTNESS: 50},
+        {ATTR_ENTITY_ID: light_id, ATTR_RGB_COLOR: [255, 0, 0], ATTR_BRIGHTNESS: 128},
         blocking=True,
     )
     async_fire_time_changed(hass, dt_util.utcnow() + timedelta(seconds=1))
@@ -74,7 +77,9 @@ async def test_light_turn_on_off(hass, mock_entry, fake_bridge) -> None:
     assert body is not None
     tlvs = decode_tlvs(body)
     assert tlvs[0][0] == 2324
+    assert tlvs[0][1] == b"\x80\x00\x00\x00\x00\x00"
     assert tlvs[1] == (2316, b"\x01")
+    assert hass.states.get(light_id).attributes["brightness"] == 128
 
     await hass.services.async_call("light", "turn_off", {ATTR_ENTITY_ID: light_id}, blocking=True)
     async_fire_time_changed(hass, dt_util.utcnow() + timedelta(seconds=1))
@@ -216,3 +221,31 @@ async def test_program_select_and_start(hass, mock_entry, fake_bridge) -> None:
     body = fake_bridge.last_request(CMD_START_PROGRAM)
     assert body is not None
     assert decode_tlvs(body)[0] == (2312, b"\x03\x01")
+
+
+async def test_program_volume(hass, mock_entry, fake_bridge) -> None:
+    fake_bridge.program_settings[3] = PROGRAM_SETTINGS_SLEEP
+    await setup_aura(hass, mock_entry)
+    volume_id = entity_id(hass, "number", "program_volume")
+    assert hass.states.get(volume_id).state == "50"
+
+    await hass.services.async_call(
+        "number",
+        "set_value",
+        {ATTR_ENTITY_ID: volume_id, "value": 42},
+        blocking=True,
+    )
+    body = fake_bridge.last_request(CMD_SET_PROGRAM_SETTINGS)
+    assert body is not None
+    tlvs = decode_tlvs(body)
+    assert tlvs[0] == (2327, b"\x01\x00\x00\x00\x00")
+    assert tlvs[1] == (2326, b"\x01\x0242")
+
+    await hass.services.async_call(
+        "select",
+        "select_option",
+        {ATTR_ENTITY_ID: entity_id(hass, "select", "program"), "option": "sleep"},
+        blocking=True,
+    )
+    await hass.async_block_till_done()
+    assert hass.states.get(volume_id).state == "29"

@@ -47,3 +47,5 @@ class AuraProgramSelect(AuraEntity, SelectEntity):
     async def async_select_option(self, option: str) -> None:
         self.coordinator.selected_program = option
         self.async_write_ha_state()
+        # Let the volume number reflect the newly selected program.
+        self.coordinator.async_update_listeners()
