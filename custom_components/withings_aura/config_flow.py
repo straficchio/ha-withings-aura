@@ -79,7 +79,7 @@ class AuraConfigFlow(ConfigFlow, domain=DOMAIN):
         port = discovery_info.port or DEFAULT_PORT
         properties = discovery_info.properties or {}
         mac = normalize_mac(str(properties.get(CONF_MAC, "")))
-        firmware = properties.get(CONF_FIRMWARE)
+        firmware = properties.get("version") or properties.get(CONF_FIRMWARE)
         if not mac:
             try:
                 probe = await async_probe(host, port)
