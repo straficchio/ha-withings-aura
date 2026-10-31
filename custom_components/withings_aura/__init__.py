@@ -93,6 +93,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: AuraConfigEntry) -> boo
     """Unload one Aura."""
     unloaded = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     if unloaded:
+        await entry.runtime_data.coordinator.async_shutdown()
         await entry.runtime_data.bridge.async_close()
     return unloaded
 
