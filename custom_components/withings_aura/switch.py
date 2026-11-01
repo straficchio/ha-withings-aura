@@ -5,6 +5,7 @@ from __future__ import annotations
 from homeassistant.components.switch import SwitchDeviceClass, SwitchEntity
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
+from .alarm import async_save_alarm
 from .entity import AuraEntity
 from .runtime import AuraConfigEntry
 
@@ -15,13 +16,17 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     coordinator = entry.runtime_data.coordinator
-    async_add_entities(
-        [
-            AuraClockDisplaySwitch(coordinator),
-            AuraPrivateModeSwitch(coordinator),
-            AuraAlarmEnabledSwitch(coordinator),
-        ]
+    configured = {alarm.slot for alarm in coordinator.data.alarms}
+    entities = [
+        AuraClockDisplaySwitch(coordinator),
+        AuraPrivateModeSwitch(coordinator),
+        AuraAlarmEnabledSwitch(coordinator),
+    ]
+    entities.extend(
+        AuraAlarmSwitch(coordinator, slot, enabled_default=slot in configured or slot == 1)
+        for slot in range(1, 11)
     )
+    async_add_entities(entities)
 
 
 class AuraClockDisplaySwitch(AuraEntity, SwitchEntity):
@@ -88,3 +93,40 @@ class AuraAlarmEnabledSwitch(AuraEntity, SwitchEntity):
 
     async def async_turn_off(self, **kwargs) -> None:
         await self.coordinator.async_set_alarm_enabled(False)
+
+
+class AuraAlarmSwitch(AuraEntity, SwitchEntity):
+    """Enable or disable one alarm slot."""
+
+    _attr_translation_key = "alarm"
+    _attr_device_class = SwitchDeviceClass.SWITCH
+
+    def __init__(self, coordinator, slot: int, *, enabled_default: bool) -> None:
+        super().__init__(coordinator, f"alarm_{slot}_enabled")
+        self.slot = slot
+        self._attr_entity_registry_enabled_default = enabled_default
+        self._attr_translation_placeholders = {"slot": str(slot)}
+
+    @property
+    def _alarm(self):
+        if not self.coordinator.data:
+            return None
+        return next(
+            (alarm for alarm in self.coordinator.data.alarms if alarm.slot == self.slot),
+            None,
+        )
+
+    @property
+    def available(self) -> bool:
+        return super().available and self._alarm is not None
+
+    @property
+    def is_on(self) -> bool:
+        alarm = self._alarm
+        return bool(alarm and alarm.enabled)
+
+    async def async_turn_on(self, **kwargs) -> None:
+        await async_save_alarm(self.coordinator, self.slot, self._alarm, enabled=True)
+
+    async def async_turn_off(self, **kwargs) -> None:
+        await async_save_alarm(self.coordinator, self.slot, self._alarm, enabled=False)

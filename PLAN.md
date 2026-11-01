@@ -1,6 +1,6 @@
 # Plan: Home Assistant integration for Withings Aura (WSD01)
 
-Status: **implemented v0.1.3** (M0–M4); M5 is optional.
+Status: **implemented v0.1.4** (M0–M4); M5 is optional.
 Target: a self-contained, HACS-shareable custom integration in this folder.
 Protocol reference: the WPP notes in the parent reverse-engineering workspace
 (not part of this repository). The integration is self-contained.
@@ -32,7 +32,7 @@ Non-goals for v1:
 | IoT class | `local_polling` |
 | Config flow | mDNS discovery + manual host/port fallback |
 | External dependencies | none; vendor the WPP client |
-| Poll interval | 30 s default, configurable 10–300 s |
+| Poll interval | 10 s default, configurable 5–300 s |
 | Slow poll (alarms/programs) | every 5 min |
 | License | MIT |
 | Sharing | HACS custom repository; not core (undocumented protocol) |
@@ -153,6 +153,8 @@ One `AuraBridge` per config entry:
 | `number` | Program volume | 2310 read / 2309 write | selected program, 0–100 |
 | `switch` | Private mode | 2320 read / 2319+2059 write | inverted |
 | `switch` | Alarm enabled | 2330 / 2331 | global flag |
+| `time` | Alarm 1–10 time | 293 / 297 | per-slot time |
+| `switch` | Alarm 1–10 enabled | 293 / 297 | per-slot enable |
 | `select` | Program | 2310/2313 | mood, nap, sleep, wake-up, retail, media |
 | `button` | Start program | 2312 | uses select + optional settings |
 | `button` | Trigger alarm | 2312 (type 4) | starts a wake-up program |
@@ -163,6 +165,7 @@ One `AuraBridge` per config entry:
 | `sensor` | Firmware | 257 | diagnostic |
 | `sensor` | Alarm count | 298 | diagnostic |
 | `sensor` | Alarms | 293 | attributes; v1 |
+| `sensor` | Time offset | 1281 | timezone/DST diagnostic |
 | `binary_sensor` | Playing | 2311 | optional |
 
 **Light semantics:**
@@ -312,6 +315,7 @@ status/firmware update.
 ### M2 — Settings and program controls (1–2 days)
 
 - Clock display switch, brightness number, program volume number, private mode switch.
+- Per-slot alarm time and enable entities.
 - Program select, start/stop/snooze buttons.
 - Alarm enabled switch, alarm sensor.
 

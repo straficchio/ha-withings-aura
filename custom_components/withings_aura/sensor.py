@@ -5,9 +5,11 @@ from __future__ import annotations
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.const import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.util import dt as dt_util
 
 from .entity import AuraEntity
 from .runtime import AuraConfigEntry
+from .util import format_offset
 
 
 async def async_setup_entry(
@@ -22,6 +24,7 @@ async def async_setup_entry(
             AuraFirmwareSensor(coordinator),
             AuraAlarmCountSensor(coordinator),
             AuraAlarmsSensor(coordinator),
+            AuraTimeOffsetSensor(coordinator),
         ]
     )
 
@@ -109,4 +112,35 @@ class AuraAlarmsSensor(AuraEntity, SensorEntity):
         return {
             "alarm_enabled": self.coordinator.data.alarm_enabled,
             "alarms": [alarm.as_dict() for alarm in self.coordinator.data.alarms],
+        }
+
+
+class AuraTimeOffsetSensor(AuraEntity, SensorEntity):
+    """Timezone/UTC offset and the next DST transition sent to the Aura."""
+
+    _attr_translation_key = "time_offset"
+    _attr_icon = "mdi:clock-time-four-outline"
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+
+    def __init__(self, coordinator) -> None:
+        super().__init__(coordinator, "time_offset")
+
+    @property
+    def native_value(self) -> str | None:
+        info = self.coordinator.time_sync
+        if info is not None:
+            return str(info["utc_offset_text"])
+        offset = dt_util.now().utcoffset()
+        return format_offset(int(offset.total_seconds())) if offset is not None else None
+
+    @property
+    def extra_state_attributes(self) -> dict:
+        info = self.coordinator.time_sync
+        if info is None:
+            return {}
+        return {
+            "timezone": info["timezone"],
+            "next_dst_change": info["next_change"],
+            "next_offset": info["next_offset_text"],
+            "synced_at": info["synced_at"],
         }

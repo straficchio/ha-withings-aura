@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from datetime import datetime
 
 from .const import (
@@ -27,6 +28,7 @@ from .const import (
     PROGRAM_TYPE_NAMES,
     TLV_PROBE_REPLY,
 )
+from .exceptions import AuraTimeoutError
 from .models import Alarm, AuraSettings, AuraStatus, LampState, ProbeInfo, ProgramInfo
 from .protocol import (
     AuraProtocolError,
@@ -109,7 +111,15 @@ class AuraDevice:
         return decode_program_info(body)
 
     async def set_lamp(self, red: int, green: int, blue: int, on: bool) -> None:
-        await self.bridge.async_request(CMD_SET_LAMP, build_set_lamp(red, green, blue, on))
+        body = build_set_lamp(red, green, blue, on)
+        for attempt in range(2):
+            try:
+                await self.bridge.async_request(CMD_SET_LAMP, body)
+                return
+            except AuraTimeoutError:
+                if attempt == 1:
+                    raise
+                await asyncio.sleep(0.5)
 
     async def set_clock_display(self, on: bool, brightness: int) -> None:
         await self.bridge.async_request(CMD_SET_SETTINGS, build_set_clock_display(on, brightness))

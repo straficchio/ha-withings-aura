@@ -28,6 +28,7 @@ async def async_get_config_entry_diagnostics(
         },
         "last_update_success": coordinator.last_update_success,
         "selected_program": coordinator.selected_program,
+        "time_sync": coordinator.time_sync,
     }
     if data is not None:
         payload.update(

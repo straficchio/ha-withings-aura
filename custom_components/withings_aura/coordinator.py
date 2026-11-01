@@ -25,6 +25,7 @@ from .device import AuraDevice
 from .exceptions import AuraError
 from .models import AuraSettings, AuraSnapshot, LampState, ProbeInfo
 from .protocol import ProbeChallengeError
+from .util import time_sync_info
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -60,6 +61,8 @@ class AuraCoordinator(DataUpdateCoordinator[AuraSnapshot]):
         self._program_infos: dict[int, Any] = {}
         self._last_slow = 0.0
         self.selected_program: str = PROGRAM_TYPES[1]
+        self.time_sync: dict[str, object] | None = None
+        self._lamp_write_until = 0.0
 
     async def _async_update_data(self) -> AuraSnapshot:
         try:
@@ -67,6 +70,9 @@ class AuraCoordinator(DataUpdateCoordinator[AuraSnapshot]):
                 self._probe = await self.device.probe()
             status = await self.device.status()
             lamp = await self.device.lamp()
+            if time.monotonic() < self._lamp_write_until and self.data is not None:
+                # Keep the optimistic value while the firmware fades.
+                lamp = self.data.lamp
             settings = await self.device.settings()
 
             now = time.monotonic()
@@ -111,7 +117,7 @@ class AuraCoordinator(DataUpdateCoordinator[AuraSnapshot]):
         self.hass.async_create_task(self._async_delayed_refresh())
 
     async def _async_delayed_refresh(self) -> None:
-        await asyncio.sleep(1.0)
+        await asyncio.sleep(3.0)
         try:
             await self.async_request_refresh()
         except Exception:  # noqa: BLE001
@@ -134,10 +140,15 @@ class AuraCoordinator(DataUpdateCoordinator[AuraSnapshot]):
         optimistic = self._snapshot_with(
             lamp=LampState(red=red, green=green, blue=blue, state=1 if on else 0)
         )
-        await self._async_write(
-            self.device.set_lamp(red, green, blue, on),
-            optimistic=optimistic,
-        )
+        self._lamp_write_until = time.monotonic() + 5.0
+        try:
+            await self._async_write(
+                self.device.set_lamp(red, green, blue, on),
+                optimistic=optimistic,
+            )
+        except Exception:
+            self._lamp_write_until = 0.0
+            raise
 
     async def async_set_clock_display(self, on: bool, brightness: int) -> None:
         settings = self.data.settings if self.data else AuraSettings()
@@ -177,7 +188,11 @@ class AuraCoordinator(DataUpdateCoordinator[AuraSnapshot]):
         await self._async_write(self.device.snooze())
 
     async def async_sync_time(self, twelve_hour: bool | None = None) -> None:
-        await self._async_write(self.device.sync_time(dt_util.now(), twelve_hour))
+        now = dt_util.now()
+        info = time_sync_info(now)
+        await self._async_write(self.device.sync_time(now, twelve_hour))
+        self.time_sync = info
+        self.async_update_listeners()
 
     async def async_set_program_settings(
         self,

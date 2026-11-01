@@ -12,11 +12,12 @@ Tested against firmware **1301** (hardware 12).
 - **Program volume** — 0–100 volume for the program selected in the Program select.
 - **Clock display** — on/off switch and 0–100 brightness number.
 - **Private mode** — switch.
-- **Alarms** — alarm sensor with attributes, global alarm switch, and
-  `set_alarm` / `trigger_alarm` / `stop_program` / `snooze` services.
+- **Alarms** — per-slot time and enable entities, alarm sensor, global alarm
+  switch, and `set_alarm` / `trigger_alarm` / `stop_program` / `snooze` services.
 - **Programs** — program select, start button, stop button, snooze button.
 - **Status** — playback status, firmware, alarm slots, “playing” binary sensor.
-- **Time sync** — push HA time and 12/24-hour mode.
+- **Time sync** — DST-aware time/offset sync plus a diagnostic time-offset sensor.
+- **Refresh** — a button to force an immediate read (useful after local touch).
 - **Local discovery** — mDNS (`_withings-aura-bridge._tcp`), plus manual
   host/port setup.
 - **Diagnostics** — redacts the unit’s probe secret.
@@ -61,7 +62,7 @@ creating a half-working entry.
 
 ### Options
 
-- **Status poll interval** — default 30 s (10–300 s).
+- **Status poll interval** — default 10 s (5–300 s).
 - **Alarm/program poll interval** — default 300 s (60–3600 s).
 
 ## Entities
@@ -76,6 +77,9 @@ creating a half-working entry.
 | Alarms | `switch` | Global alarm enable |
 | Alarms | `sensor` | Configured alarms and attributes |
 | Alarm slots | `sensor` | Number of alarm slots (diagnostic) |
+| Alarm time 1–10 | `time` | Time for each alarm slot |
+| Alarm 1–10 | `switch` | Enable/disable each alarm slot |
+| Time offset | `sensor` | Current UTC offset and next DST transition (diagnostic) |
 | Firmware | `sensor` | Firmware version (diagnostic) |
 | Status | `sensor` | Idle/sleep/nap/wake-up/mood/media |
 | Playing | `binary_sensor` | A program is playing |
@@ -85,6 +89,21 @@ creating a half-working entry.
 | Stop program | `button` | Stops the current program |
 | Snooze | `button` | Snoozes the current wake-up |
 | Sync time | `button` | Pushes HA time/clock mode |
+| Refresh | `button` | Forces an immediate coordinator refresh |
+
+## Time sync
+
+The integration uses Home Assistant’s configured timezone. **Sync time** sends
+the current UTC time, the current UTC offset, the next DST transition, and the
+next UTC offset. The **Time offset** diagnostic sensor shows what was sent. To
+change the timezone, change Home Assistant’s timezone and press **Sync time**;
+there is no separate Aura timezone setting.
+
+## Local touch
+
+The Aura is polled every 10 seconds by default. Press **Refresh** for an
+immediate read after touching the lamp. If the lamp still does not update, the
+firmware is not exposing its local touch state through `GET_LAMP`.
 
 ## Services
 
@@ -123,7 +142,9 @@ data:
 ```
 
 `days` uses `mon`…`sun`; leave it empty for a one-shot alarm and set
-`one_shot_date: "2026-11-01"` if needed.
+`one_shot_date: "2026-11-01"` if needed. For the UI, set the time with the
+**Alarm N time** entity and toggle **Alarm N**; use this service when you need
+to change the weekday mask, program or volume.
 
 ### `withings_aura.trigger_alarm`
 

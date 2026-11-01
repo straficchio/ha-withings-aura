@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import time as dt_time
 from datetime import timedelta
 
 from homeassistant.components.light import ATTR_BRIGHTNESS, ATTR_RGB_COLOR
@@ -249,3 +250,37 @@ async def test_program_volume(hass, mock_entry, fake_bridge) -> None:
     )
     await hass.async_block_till_done()
     assert hass.states.get(volume_id).state == "29"
+
+
+async def test_alarm_time_and_switch(hass, mock_entry, fake_bridge) -> None:
+    await setup_aura(hass, mock_entry)
+
+    time_id = entity_id(hass, "time", "alarm_1_time")
+    assert hass.states.get(time_id).state == "06:45:00"
+
+    await hass.services.async_call(
+        "time",
+        "set_value",
+        {ATTR_ENTITY_ID: time_id, "time": dt_time(7, 30)},
+        blocking=True,
+    )
+    body = fake_bridge.last_request(CMD_SET_ALARM)
+    assert body is not None
+    tlvs = decode_tlvs(body)
+    alarm = dict(tlvs)[1298]
+    hour, minute, mask, _day, _month, _year, program = alarm
+    assert (hour, minute, program) == (7, 30, 15)
+    assert mask == 0x3E  # Mon-Fri, disabled
+
+    switch_id = entity_id(hass, "switch", "alarm_1_enabled")
+    assert hass.states.get(switch_id).state == STATE_OFF
+    await hass.services.async_call(
+        "switch",
+        "turn_on",
+        {ATTR_ENTITY_ID: switch_id},
+        blocking=True,
+    )
+    body = fake_bridge.last_request(CMD_SET_ALARM)
+    assert body is not None
+    alarm = dict(decode_tlvs(body))[1298]
+    assert alarm[2] & 0x80

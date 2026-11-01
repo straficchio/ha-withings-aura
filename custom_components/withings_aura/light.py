@@ -21,7 +21,7 @@ from .runtime import AuraConfigEntry
 _LOGGER = logging.getLogger(__name__)
 
 DEFAULT_RGB = (255, 180, 107)
-DEBOUNCE_SECONDS = 0.25
+DEBOUNCE_SECONDS = 0.5
 
 
 async def async_setup_entry(

@@ -23,6 +23,7 @@ async def async_setup_entry(
             AuraStopProgramButton(coordinator),
             AuraSnoozeButton(coordinator),
             AuraSyncTimeButton(coordinator),
+            AuraRefreshButton(coordinator),
         ]
     )
 
@@ -94,3 +95,16 @@ class AuraSyncTimeButton(AuraEntity, ButtonEntity):
 
     async def async_press(self) -> None:
         await self.coordinator.async_sync_time()
+
+
+class AuraRefreshButton(AuraEntity, ButtonEntity):
+    """Force an immediate coordinator refresh."""
+
+    _attr_translation_key = "refresh"
+    _attr_icon = "mdi:refresh"
+
+    def __init__(self, coordinator) -> None:
+        super().__init__(coordinator, "refresh")
+
+    async def async_press(self) -> None:
+        await self.coordinator.async_request_refresh()

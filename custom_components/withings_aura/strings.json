@@ -61,6 +61,9 @@
       },
       "alarm_enabled": {
         "name": "Alarms"
+      },
+      "alarm": {
+        "name": "Alarm {slot}"
       }
     },
     "number": {
@@ -99,6 +102,9 @@
       },
       "trigger_alarm": {
         "name": "Trigger alarm"
+      },
+      "refresh": {
+        "name": "Refresh"
       }
     },
     "sensor": {
@@ -113,11 +119,19 @@
       },
       "alarms": {
         "name": "Alarms"
+      },
+      "time_offset": {
+        "name": "Time offset"
       }
     },
     "binary_sensor": {
       "playing": {
         "name": "Playing"
+      }
+    },
+    "time": {
+      "alarm_time": {
+        "name": "Alarm {slot} time"
       }
     }
   },

@@ -35,6 +35,7 @@ from .const import (
     TLV_TIME_SET,
 )
 from .models import Alarm, AuraSettings, AuraStatus, LampState, ProbeInfo, ProgramInfo
+from .util import next_dst_transition
 
 
 class AuraProtocolError(Exception):
@@ -387,11 +388,13 @@ def build_set_program_settings(
 
 
 def build_time_set(now: datetime, next_change: datetime | None = None) -> bytes:
-    """Build TIME_SET (1281)."""
-    offset = int(now.astimezone().utcoffset().total_seconds()) if now.utcoffset() else 0
+    """Build TIME_SET (1281), including the next DST transition."""
+    offset = int(now.utcoffset().total_seconds()) if now.utcoffset() else 0
+    if next_change is None:
+        next_change = next_dst_transition(now)
     next_ts = int(next_change.timestamp()) if next_change else 0
     next_offset = (
-        int(next_change.astimezone().utcoffset().total_seconds())
+        int(next_change.utcoffset().total_seconds())
         if next_change and next_change.utcoffset()
         else offset
     )
