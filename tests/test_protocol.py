@@ -9,6 +9,7 @@ from custom_components.withings_aura.const import (
     TLV_PROGRAM_SETTING,
     TLV_SET_ALARM,
 )
+from custom_components.withings_aura.models import LampState
 from custom_components.withings_aura.protocol import (
     build_set_alarm,
     build_set_lamp,
@@ -160,3 +161,14 @@ def test_build_set_alarm() -> None:
 def test_tlv_roundtrip() -> None:
     encoded = tlv(0x1234, b"abc")
     assert decode_tlvs(encoded) == [(0x1234, b"abc")]
+
+
+def test_lamp_state_uses_state_byte() -> None:
+    assert LampState(1000, 500, 250, 0).is_on is False
+    assert LampState(1000, 500, 250, 1).is_on is True
+    assert LampState(0, 0, 0, 0).is_on is False
+
+
+def test_lamp_normalized_rgb() -> None:
+    assert LampState(13107, 9252, 5500, 1).normalized_rgb == (255, 180, 107)
+    assert LampState(0, 0, 0, 0).normalized_rgb == (0, 0, 0)

@@ -1,6 +1,6 @@
 # Plan: Home Assistant integration for Withings Aura (WSD01)
 
-Status: **implemented v0.1.4** (M0–M4); M5 is optional.
+Status: **implemented v0.1.5** (M0–M4); M5 is optional.
 Target: a self-contained, HACS-shareable custom integration in this folder.
 Protocol reference: the WPP notes in the parent reverse-engineering workspace
 (not part of this repository). The integration is self-contained.
@@ -65,24 +65,29 @@ ha-withings-aura/
 │       ├── config_flow.py       # zeroconf + manual + options
 │       ├── entity.py            # base entity/device info
 │       ├── light.py             # lamp
-│       ├── switch.py            # clock display, private mode, alarm, media
-│       ├── number.py            # clock brightness
+│       ├── alarm.py             # shared alarm save helper
+│       ├── switch.py            # clock, private mode, alarms
+│       ├── number.py            # clock/program volume
+│       ├── time.py              # per-slot alarm times
 │       ├── select.py            # program type
-│       ├── button.py            # start/stop/snooze/sync time
-│       ├── sensor.py            # status, firmware, alarms, diagnostics
+│       ├── button.py            # start/trigger/stop/snooze/sync/refresh
+│       ├── sensor.py            # status, firmware, alarms, time offset
 │       ├── services.py          # YAML services
 │       ├── services.yaml
 │       ├── diagnostics.py
 │       ├── strings.json
 │       ├── translations/en.json
 │       └── brand/icon.png
+│       └── brand/logo.png
 ├── tests/
 │   ├── conftest.py
 │   ├── fake_bridge.py
 │   ├── test_protocol.py
 │   ├── test_transport.py
 │   ├── test_config_flow.py
-│   ├── test_light.py
+│   ├── test_entities.py
+│   ├── test_options.py
+│   ├── test_time.py
 │   ├── test_switches.py
 │   └── test_services.py
 └── .github/workflows/

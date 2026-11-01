@@ -43,6 +43,7 @@ class AuraLampLight(AuraEntity, LightEntity):
         super().__init__(coordinator, "lamp")
         self._pending: tuple[int, int, int, bool] | None = None
         self._cancel_debounce = None
+        self._last_rgb = DEFAULT_RGB
 
     @property
     def is_on(self) -> bool:
@@ -59,25 +60,33 @@ class AuraLampLight(AuraEntity, LightEntity):
     def rgb_color(self) -> tuple[int, int, int] | None:
         if not self.coordinator.data:
             return None
-        return self.coordinator.data.lamp.rgb
+        normalized = self.coordinator.data.lamp.normalized_rgb
+        return normalized if any(normalized) else self._last_rgb
 
     async def async_turn_on(self, **kwargs) -> None:
         """Turn the lamp on, optionally changing colour/brightness."""
         current = self.coordinator.data.lamp if self.coordinator.data else None
         rgb = kwargs.get(ATTR_RGB_COLOR)
         if rgb is None:
-            rgb = current.rgb if current and current.is_on else DEFAULT_RGB
+            normalized = current.normalized_rgb if current else (0, 0, 0)
+            rgb = normalized if any(normalized) else self._last_rgb
+        rgb = tuple(rgb)
+        self._last_rgb = rgb
         brightness = kwargs.get(ATTR_BRIGHTNESS)
         if brightness is None:
-            brightness_percent = current.brightness if current and current.is_on else 100
+            brightness_percent = current.brightness if current and current.brightness else 100
         else:
             brightness_percent = round(brightness * 100 / 255)
-        red, green, blue = lamp_channels(tuple(rgb), brightness_percent)
+        red, green, blue = lamp_channels(rgb, brightness_percent)
         self._queue(red, green, blue, True)
 
     async def async_turn_off(self, **kwargs) -> None:
-        """Turn the lamp off."""
-        self._queue(0, 0, 0, False)
+        """Turn the lamp off while preserving the last colour and brightness."""
+        current = self.coordinator.data.lamp if self.coordinator.data else None
+        if current is not None and any((current.red, current.green, current.blue)):
+            self._queue(current.red, current.green, current.blue, False)
+        else:
+            self._queue(0, 0, 0, False)
 
     @callback
     def _queue(self, red: int, green: int, blue: int, on: bool) -> None:

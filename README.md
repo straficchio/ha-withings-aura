@@ -8,7 +8,7 @@ Tested against firmware **1301** (hardware 12).
 
 ## Features
 
-- **Lamp** — colour, brightness, on/off (HA brightness 0–255, converted to the Aura’s 0–100%).
+- **Lamp** — colour, brightness, on/off. HA brightness is 0–255; the Aura stores colour and intensity separately. Turning off preserves the last colour/intensity, and turning on resumes it.
 - **Program volume** — 0–100 volume for the program selected in the Program select.
 - **Clock display** — on/off switch and 0–100 brightness number.
 - **Private mode** — switch.
@@ -102,8 +102,10 @@ there is no separate Aura timezone setting.
 ## Local touch
 
 The Aura is polled every 10 seconds by default. Press **Refresh** for an
-immediate read after touching the lamp. If the lamp still does not update, the
-firmware is not exposing its local touch state through `GET_LAMP`.
+immediate read after touching the lamp. `GET_LAMP` returns the actual colour
+and the on/off state byte; the integration uses that state byte rather than
+assuming “colour > 0 means on”. If the lamp still does not update, the firmware
+is not exposing its local touch state through `GET_LAMP`.
 
 ## Services
 

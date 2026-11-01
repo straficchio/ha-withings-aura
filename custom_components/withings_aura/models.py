@@ -57,7 +57,10 @@ class LampState:
 
     @property
     def is_on(self) -> bool:
-        # The state byte is unreliable after a colour write; colour 0 is off.
+        # The firmware keeps the last colour while off; the state byte is the
+        # on/off flag. Fall back to colour only for older replies without state.
+        if self.state is not None:
+            return self.state == 1
         return any((self.red, self.green, self.blue))
 
     @property
@@ -68,6 +71,18 @@ class LampState:
     @property
     def rgb(self) -> tuple[int, int, int]:
         return (round(self.red / 257), round(self.green / 257), round(self.blue / 257))
+
+    @property
+    def normalized_rgb(self) -> tuple[int, int, int]:
+        """Return the hue at full brightness, separate from intensity."""
+        peak = max(self.red, self.green, self.blue)
+        if peak == 0:
+            return (0, 0, 0)
+        return (
+            round(self.red * 255 / peak),
+            round(self.green * 255 / peak),
+            round(self.blue * 255 / peak),
+        )
 
 
 @dataclass(frozen=True, slots=True)
